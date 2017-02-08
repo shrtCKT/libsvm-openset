@@ -15,6 +15,8 @@ else:
 		libsvm = CDLL(os.path.join(os.path.dirname(__file__),\
 				'../windows/libsvm.dll'))
 	else:
+		libMR = CDLL(os.path.join(os.path.dirname(__file__),\
+				'../libMR/build/libMR/libMR.so'))
 		libsvm = CDLL(os.path.join(os.path.dirname(__file__),\
 				'../libsvm.so.2'))
 
