@@ -4520,7 +4520,7 @@ const char *svm_check_parameter(const svm_problem *prob, const svm_parameter *pa
 		return "unknown svm type";        
 	
 	// kernel_type, degree
-	
+
 	int kernel_type = param->kernel_type;
 	if(kernel_type != LINEAR &&
 	   kernel_type != POLY &&
@@ -4563,10 +4563,10 @@ const char *svm_check_parameter(const svm_problem *prob, const svm_parameter *pa
 	if(svm_type == EPSILON_SVR)
 		if(param->p < 0)
 			return "p < 0";
-
+	
 	if(param->shrinking != 0 &&
 	   param->shrinking != 1)
-		return "shrinking != 0 and shrinking != 1";
+	    return "shrinking != 0 and shrinking != 1";
 
 	if(param->probability != 0 &&
 	   param->probability != 1)
@@ -4622,7 +4622,8 @@ const char *svm_check_parameter(const svm_problem *prob, const svm_parameter *pa
 		free(count);
 	}
 
-	return NULL;}
+	return NULL;
+}
            
 
 int svm_check_probability_model(const svm_model *model){

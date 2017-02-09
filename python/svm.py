@@ -21,10 +21,14 @@ else:
 				'../libsvm.so.2'))
 
 # Construct constants
-SVM_TYPE = ['C_SVC', 'NU_SVC', 'ONE_CLASS', 'EPSILON_SVR', 'NU_SVR' ]
+SVM_TYPE = ['C_SVC', 'NU_SVC', 'ONE_CLASS', 'EPSILON_SVR', 'NU_SVR',
+			'OPENSET_OC', 'OPENSET_PAIR', 'OPENSET_BIN', 'ONE_VS_REST_WSVM',
+			'ONE_WSVM', 'PI_SVM']
 KERNEL_TYPE = ['LINEAR', 'POLY', 'RBF', 'SIGMOID', 'PRECOMPUTED']
+OPENSET_OPTIMIZATION = ['OPT_PRECISION', 'OPT_RECALL',  'OPT_FMEASURE',  'OPT_HINGE', 'OPT_BALANCEDRISK']
 for i, s in enumerate(SVM_TYPE): exec("%s = %d" % (s , i))
 for i, s in enumerate(KERNEL_TYPE): exec("%s = %d" % (s , i))
+for i, s in enumerate(OPENSET_OPTIMIZATION): exec("%s = %d" % (s , i))
 
 PRINT_STRING_FUN = CFUNCTYPE(None, c_char_p)
 def print_null(s): 
@@ -68,8 +72,8 @@ def gen_svm_nodearray(xi, feature_max=None, issparse=None):
 	return ret, max_idx
 
 class svm_problem(Structure):
-	_names = ["l", "y", "x"]
-	_types = [c_int, POINTER(c_double), POINTER(POINTER(svm_node))]
+	_names = ["l", "y", "x", "nr_classes", "labels"]
+	_types = [c_int, POINTER(c_double), POINTER(POINTER(svm_node)), c_int, c_int]
 	_fields_ = genFields(_names, _types)
 
 	def __init__(self, y, x):
@@ -92,12 +96,21 @@ class svm_problem(Structure):
 		for i, xi in enumerate(self.x_space): self.x[i] = xi
 
 class svm_parameter(Structure):
-	_names = ["svm_type", "kernel_type", "degree", "gamma", "coef0",
-			"cache_size", "eps", "C", "nr_weight", "weight_label", "weight", 
-			"nu", "p", "shrinking", "probability"]
-	_types = [c_int, c_int, c_int, c_double, c_double, 
-			c_double, c_double, c_double, c_int, POINTER(c_int), POINTER(c_double),
-			c_double, c_double, c_int, c_int]
+	_names = ["svm_type", "kernel_type", "do_open", "degree", "gamma", "coef0",
+			"cache_size", "eps", "C", "nr_weight", "nr_fold", "cross_validation", "weight_label", "weight",
+			"nu", "p", "shrinking", "probability",
+			"neg_labels", "exaustive_open", "optimize", "beta",
+			"near_preasure", "far_preasure", "openset_min_probability",
+			"openset_min_probability_one_wsvm", "vfile",
+			"rejectedID", "cap_cost", "cap_gamma"]
+	_types = [c_int, c_int, c_int, c_int, c_double, c_double, # "svm_type", "kernel_type", "do_open", "degree", "gamma", "coef0",
+			c_double, c_double, c_double, c_int, c_int, c_int, POINTER(c_int), POINTER(c_double), #"cache_size", "eps", "C", "nr_weight", "nr_fold", "cross_validation", "weight_label", "weight",
+			c_double, c_double, c_int, c_int,	# "nu", "p", "shrinking", "probability",
+			c_bool, c_bool, c_int, c_double,	# "neg_labels", "exaustive_open", "optimize", "beta",
+			c_double, c_double, c_double,		# "near_preasure", "far_preasure", "openset_min_probability",
+			c_double, c_void_p, 				# "openset_min_probability_one_wsvm", "vfile",
+			c_int, c_double, c_double			# "rejectedID", "cap_cost", "cap_gamma"
+			]
 	_fields_ = genFields(_names, _types)
 
 	def __init__(self, options = None):
@@ -128,8 +141,19 @@ class svm_parameter(Structure):
 		self.weight_label = (c_int*0)()
 		self.weight = (c_double*0)()
 		self.cross_validation = False
+		self.do_open = 0
+		self.openset_min_probability = 0.0
+		self.openset_min_probability_one_wsvm = 0.0
 		self.nr_fold = 0
 		self.print_func = None
+
+		self.optimize = OPT_BALANCEDRISK
+		self.beta = 1.000 # Require classic fmeasure balance of recall and precision by default
+		self.near_preasure = 0
+		self.far_preasure = 0
+		self.rejectedID = -99999
+		self.neg_labels = False
+		self.exaustive_open = False
 
 	def parse_options(self, options):
 		argv = options.split()
