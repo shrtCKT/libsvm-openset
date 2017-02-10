@@ -91,6 +91,12 @@ def svm_train(arg1, arg2=None, arg3=None):
 	        2 -- one-class SVM
 	        3 -- epsilon-SVR
 	        4 -- nu-SVR
+			5 -- open-set oneclass SVM (open_set_training_file required)
+			6 -- open-set pair-wise SVM  (open_set_training_file required)
+			7 -- open-set binary SVM  (open_set_training_file required)
+			8 -- one-vs-rest WSVM (open_set_training_file required)
+			9 -- One-class PI-OSVM (open_set_training_file required)
+			10 -- one-vs-all PI-SVM (open_set_training_file required) 
 	    -t kernel_type : set type of kernel function (default 2)
 	        0 -- linear: u'*v
 	        1 -- polynomial: (gamma*u'*v + coef0)^degree
@@ -109,7 +115,16 @@ def svm_train(arg1, arg2=None, arg3=None):
 	    -b probability_estimates : whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)
 	    -wi weight : set the parameter C of class i to weight*C, for C-SVC (default 1)
 	    -v n: n-fold cross validation mode
-	    -q : quiet mode (no outputs)
+	    -p epsilon : set the epsilon in loss function of epsilon-SVR (default 0.1)\n"
+		-q : quiet mode (no outputs)
+		-P threshold : probability value to reject sample as unknowns for WSVM/One-class PI-OSVM (default 0.0) (only for cross validation)
+        -C threshold : probability value to reject sample as unknowns for CAP model in WSVM(default 0.0) (only for cross validation)
+		-B beta : will set the beta for fmeasure used in openset training, default =1
+		-N : we build models for negative classes (used for multiclass where labels might be negative.  default is only positive models. (default is false)
+		-E : do exaustive search for best openset (otherwise do the default greedy optimization). (default is false)
+		-G nearpreasure farpressure : will adjust the pressures for openset optimiation. <0 will specalize, >0 will generalize
+		-o cost : set the parameter C for CAP model in one-vs-rest WSVM
+        -a gamma : set gamma in kernel function for CAP model in one-vs-rest WSVM
 	"""
 	prob, param = None, None
 	if isinstance(arg1, (list, tuple)):

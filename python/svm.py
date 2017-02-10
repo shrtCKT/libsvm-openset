@@ -72,8 +72,10 @@ def gen_svm_nodearray(xi, feature_max=None, issparse=None):
 	return ret, max_idx
 
 class svm_problem(Structure):
-	_names = ["l", "y", "x", "nr_classes", "labels"]
-	_types = [c_int, POINTER(c_double), POINTER(POINTER(svm_node)), c_int, c_int]
+	_names = ["l", "y", "x",
+			  "nr_classes", "labels"]
+	_types = [c_int, POINTER(c_double), POINTER(POINTER(svm_node)),
+			  c_int, POINTER(c_int)]
 	_fields_ = genFields(_names, _types)
 
 	def __init__(self, y, x):
@@ -149,8 +151,8 @@ class svm_parameter(Structure):
 
 		self.optimize = OPT_BALANCEDRISK
 		self.beta = 1.000 # Require classic fmeasure balance of recall and precision by default
-		self.near_preasure = 0
-		self.far_preasure = 0
+		self.near_preasure = 0.0
+		self.far_preasure = 0.0
 		self.rejectedID = -99999
 		self.neg_labels = False
 		self.exaustive_open = False
@@ -214,6 +216,30 @@ class svm_parameter(Structure):
 				nr_weight = self.nr_weight
 				weight_label += [int(argv[i-1][2:])]
 				weight += [float(argv[i])]
+			elif argv[i] == "-B":
+				i = i + 1
+				self.beta = float(argv[i])
+			elif argv[i] == "-N":
+				self.neg_labels = True
+			elif argv[i] == "-E":
+				self.exaustive_open = True
+			elif argv[i] == "-G":
+				i = i + 1
+				self.near_preasure = float(argv[i])
+				i = i + 1
+				self.far_preasure = float(argv[i])
+			elif argv[i] == "-o":
+				i = i + 1
+				self.cap_cost = float(argv[i])
+			elif argv[i] == "-a":
+				i = i + 1
+				self.cap_gamma = float(argv[i])
+			elif argv[i] == "-P":
+				i = i + 1
+				self.openset_min_probability = float(argv[i])
+			elif argv[i] == "-C":
+				i = i + 1
+				self.openset_min_probability_one_wsvm = float(argv[i])
 			else:
 				raise ValueError("Wrong options")
 			i += 1
