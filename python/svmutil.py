@@ -213,6 +213,7 @@ def svm_predict(y, x, m, options=""):
 	nr_class = m.get_nr_class()
 	pred_labels = []
 	pred_values = []
+	pred_max_score = []
 
 	if predict_probability:
 		if not is_prob_model:
@@ -230,6 +231,30 @@ def svm_predict(y, x, m, options=""):
 			values = prob_estimates[:nr_class]
 			pred_labels += [label]
 			pred_values += [values]
+	elif svm_type == ONE_WSVM or svm_type == PI_SVM:
+		# votes = (c_int * (nr_class + 1))()
+		# scores = ((c_double * nr_class) * (nr_class + 1))()
+		
+		
+		l = [[0.0] * nr_class] * (nr_class + 1)
+		entrylist = []
+		for sub_l in l:
+			entrylist.append((c_double*len(sub_l))(*sub_l))
+		scores = (POINTER(c_double) * len(entrylist))(*entrylist)
+		votes = (c_int * (nr_class + 1))()
+
+		for xi in x:
+			xi, idx = gen_svm_nodearray(xi)
+			label = libsvm.svm_predict_extended(m, xi, 
+												byref(cast(scores, POINTER(POINTER(c_double)))),
+												byref(cast(votes, POINTER(c_int))))
+			pred_labels += [label]
+			max_prob = scores[0][0];
+			for jj in xrange(m.openset_dim):
+				if(scores[jj][0] > max_prob):
+					max_prob = scores[jj][0]
+			
+			pred_max_score += [max_prob]
 	else:
 		if is_prob_model:
 			print("Model supports probability estimates, but disabled in predicton.")
@@ -253,5 +278,5 @@ def svm_predict(y, x, m, options=""):
 	else:
 		print("Accuracy = %g%% (%d/%d) (classification)" % (ACC, int(l*ACC/100), l))
 
-	return pred_labels, (ACC, MSE, SCC), pred_values
+	return pred_labels, (ACC, MSE, SCC), pred_values, pred_max_score
 

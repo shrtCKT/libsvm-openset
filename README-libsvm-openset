@@ -6,8 +6,12 @@ This package an extension to the well known  libsvm package (see README for info
 PI-SVM/PI-OSVM functionality described in [1] in libsvm-openset:
 The extension uses the same command-line processing with a few added  fields:
 In svm-train:
-    -s 9 for the PI-OSVM based on one-class svms
-    -s 10 for the PI-SVM based on 1-vs-rest binary svms
+    -s 5  open-set oneclass SVM (open_set_training_file required)
+    -s 6  open-set pair-wise SVM  (open_set_training_file required)
+    -s 7  open-set binary SVM  (open_set_training_file required)
+    -s 8  one-vs-rest WSVM (open_set_training_file required)
+    -s 9  One-class PI-OSVM (open_set_training_file required)
+    -s 10 one-vs-all PI-SVM (open_set_training_file required) 
 In svm-predict:
     -P specify thresholded probability value to reject sample as unknowns for WSVM (default 0.0)
  
