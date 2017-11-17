@@ -4,7 +4,7 @@ from ctypes import *
 
 
 class PiSVM():
-    def __init__(self, gamma=None, p_threshold=0.25):
+    def __init__(self, gamma=None, p_threshold=0.25, contamination=None):
         """
         Args:
         gamma - set gamma in kernel function (if None then set to 1/num_features)
@@ -20,6 +20,7 @@ class PiSVM():
         self.param.openset_min_probability = p_threshold
         self.p_threshold = p_threshold
         self.svm_model = None
+        self.contamination = contamination
 
     @staticmethod
     def to_svm_problem(X, y):

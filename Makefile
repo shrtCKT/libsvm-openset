@@ -1,5 +1,5 @@
 #LIBMR_DIR should be absolute path, not relative (no ..)                                                                                                          
-LIBMR_DIR = /Users/macuser/lalitphd/WSVM/libsvm-openset/libMR
+LIBMR_DIR = /home/meha/code/libsvm-openset/libMR
 
 ifeq ($(OS),Windows_NT)
     CFLAGS += -D WIN32
